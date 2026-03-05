@@ -1,16 +1,16 @@
 {
   "hooks": {
     "PreToolUse": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/pretooluse.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot pretooluse" }
     ],
     "PostToolUse": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/posttooluse.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot posttooluse" }
     ],
     "PreCompact": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/precompact.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot precompact" }
     ],
     "SessionStart": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/sessionstart.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot sessionstart" }
     ]
   }
 }

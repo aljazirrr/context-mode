@@ -305,7 +305,7 @@ export class ClaudeCodeAdapter implements HookAdapter {
         check: "PreToolUse hook",
         status: "fail",
         message: "Could not read ~/.claude/settings.json",
-        fix: "npx context-mode upgrade",
+        fix: "context-mode upgrade",
       });
       return results;
     }
@@ -326,14 +326,14 @@ export class ClaudeCodeAdapter implements HookAdapter {
         message: hasHook
           ? "PreToolUse hook configured"
           : "PreToolUse exists but does not point to pretooluse.mjs",
-        fix: hasHook ? undefined : "npx context-mode upgrade",
+        fix: hasHook ? undefined : "context-mode upgrade",
       });
     } else {
       results.push({
         check: "PreToolUse hook",
         status: "fail",
         message: "No PreToolUse hooks found",
-        fix: "npx context-mode upgrade",
+        fix: "context-mode upgrade",
       });
     }
 
@@ -351,14 +351,14 @@ export class ClaudeCodeAdapter implements HookAdapter {
         message: hasHook
           ? "SessionStart hook configured"
           : "SessionStart exists but does not point to sessionstart.mjs",
-        fix: hasHook ? undefined : "npx context-mode upgrade",
+        fix: hasHook ? undefined : "context-mode upgrade",
       });
     } else {
       results.push({
         check: "SessionStart hook",
         status: "fail",
         message: "No SessionStart hooks found",
-        fix: "npx context-mode upgrade",
+        fix: "context-mode upgrade",
       });
     }
 
@@ -474,7 +474,7 @@ export class ClaudeCodeAdapter implements HookAdapter {
     ];
 
     for (const hookType of hookTypes) {
-      const command = buildHookCommand(hookType, pluginRoot);
+      const command = buildHookCommand(hookType);
 
       if (hookType === HOOK_TYPES.PRE_TOOL_USE) {
         const entry = {

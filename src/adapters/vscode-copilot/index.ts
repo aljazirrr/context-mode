@@ -250,9 +250,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
     return join(this.getSessionDir(), `${hash}-events.md`);
   }
 
-  generateHookConfig(pluginRoot: string): HookRegistration {
-    const hooksDir = join(pluginRoot, "hooks", "vscode-copilot");
-
+  generateHookConfig(_pluginRoot: string): HookRegistration {
     return {
       [VSCODE_HOOK_NAMES.PRE_TOOL_USE]: [
         {
@@ -260,7 +258,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${VSCODE_HOOK_SCRIPTS[VSCODE_HOOK_NAMES.PRE_TOOL_USE]}`,
+              command: `context-mode hook vscode-copilot ${VSCODE_HOOK_NAMES.PRE_TOOL_USE.toLowerCase()}`,
             },
           ],
         },
@@ -271,7 +269,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${VSCODE_HOOK_SCRIPTS[VSCODE_HOOK_NAMES.POST_TOOL_USE]}`,
+              command: `context-mode hook vscode-copilot ${VSCODE_HOOK_NAMES.POST_TOOL_USE.toLowerCase()}`,
             },
           ],
         },
@@ -282,7 +280,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${VSCODE_HOOK_SCRIPTS[VSCODE_HOOK_NAMES.PRE_COMPACT]}`,
+              command: `context-mode hook vscode-copilot ${VSCODE_HOOK_NAMES.PRE_COMPACT.toLowerCase()}`,
             },
           ],
         },
@@ -293,7 +291,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${VSCODE_HOOK_SCRIPTS[VSCODE_HOOK_NAMES.SESSION_START]}`,
+              command: `context-mode hook vscode-copilot ${VSCODE_HOOK_NAMES.SESSION_START.toLowerCase()}`,
             },
           ],
         },
@@ -343,7 +341,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
         check: "Hooks directory",
         status: "fail",
         message: ".github/hooks/ directory not found",
-        fix: "npx context-mode upgrade --platform vscode-copilot",
+        fix: "context-mode upgrade",
       });
       return results;
     }
@@ -367,7 +365,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           check: "PreToolUse hook",
           status: "fail",
           message: "PreToolUse not found in context-mode.json",
-          fix: "npx context-mode upgrade --platform vscode-copilot",
+          fix: "context-mode upgrade",
         });
       }
 
@@ -383,7 +381,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           check: "SessionStart hook",
           status: "fail",
           message: "SessionStart not found in context-mode.json",
-          fix: "npx context-mode upgrade --platform vscode-copilot",
+          fix: "context-mode upgrade",
         });
       }
     } catch {
@@ -391,7 +389,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
         check: "Hook configuration",
         status: "fail",
         message: "Could not read .github/hooks/context-mode.json",
-        fix: "npx context-mode upgrade --platform vscode-copilot",
+        fix: "context-mode upgrade",
       });
     }
 
@@ -484,9 +482,8 @@ export class VSCodeCopilotAdapter implements HookAdapter {
 
   // ── Upgrade ────────────────────────────────────────────
 
-  configureAllHooks(pluginRoot: string): string[] {
+  configureAllHooks(_pluginRoot: string): string[] {
     const changes: string[] = [];
-    const hooksDir = join(pluginRoot, "hooks", "vscode-copilot");
     const hookConfig: Record<string, unknown> = { hooks: {} };
     const hooks = hookConfig.hooks as Record<string, unknown>;
 
@@ -507,7 +504,7 @@ export class VSCodeCopilotAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${script}`,
+              command: `context-mode hook vscode-copilot ${hookType.toLowerCase()}`,
             },
           ],
         },

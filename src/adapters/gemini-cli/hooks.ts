@@ -71,12 +71,10 @@ export function isContextModeHook(
 }
 
 /**
- * Build the hook command string for a given hook type and plugin root.
+ * Build the hook command string for a given hook type.
+ * Uses the CLI dispatcher: `context-mode hook gemini-cli <event>`
+ * Requires global install: `npm install -g context-mode`
  */
-export function buildHookCommand(
-  hookType: HookType,
-  pluginRoot: string,
-): string {
-  const scriptName = HOOK_SCRIPTS[hookType];
-  return `node ${pluginRoot}/hooks/gemini-cli/${scriptName}`;
+export function buildHookCommand(hookType: HookType): string {
+  return `context-mode hook gemini-cli ${hookType.toLowerCase()}`;
 }

@@ -2,5 +2,4 @@
 # Add this to ~/.codex/config.toml
 
 [mcp_servers.context-mode]
-command = "npx"
-args = ["-y", "context-mode"]
+command = "context-mode"

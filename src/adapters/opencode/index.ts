@@ -273,7 +273,7 @@ export class OpenCodeAdapter implements HookAdapter {
         check: "Plugin configuration",
         status: "fail",
         message: "Could not read opencode.json",
-        fix: "npx context-mode upgrade --platform opencode",
+        fix: "context-mode upgrade",
       });
       return results;
     }
@@ -290,14 +290,14 @@ export class OpenCodeAdapter implements HookAdapter {
           : "context-mode not found in plugin array",
         fix: hasPlugin
           ? undefined
-          : "npx context-mode upgrade --platform opencode",
+          : "context-mode upgrade",
       });
     } else {
       results.push({
         check: "Plugin registration",
         status: "fail",
         message: "No plugin array found in opencode.json",
-        fix: "npx context-mode upgrade --platform opencode",
+        fix: "context-mode upgrade",
       });
     }
 
@@ -338,7 +338,7 @@ export class OpenCodeAdapter implements HookAdapter {
       check: "Plugin registration",
       status: "fail",
       message: "context-mode not found in opencode.json plugin array",
-      fix: "npx context-mode upgrade --platform opencode",
+      fix: "context-mode upgrade",
     };
   }
 

@@ -3,9 +3,10 @@
  * context-mode CLI
  *
  * Usage:
- *   context-mode          → Start MCP server (stdio)
- *   context-mode doctor   → Diagnose runtime issues, hooks, FTS5, version
- *   context-mode upgrade  → Fix hooks, permissions, and settings
+ *   context-mode                              → Start MCP server (stdio)
+ *   context-mode doctor                       → Diagnose runtime issues, hooks, FTS5, version
+ *   context-mode upgrade                      → Fix hooks, permissions, and settings
+ *   context-mode hook <platform> <event>      → Dispatch a hook script (used by platform hook configs)
  *
  * Platform auto-detection: CLI detects which platform is running
  * (Claude Code, Gemini CLI, OpenCode, etc.) and uses the appropriate adapter.
@@ -15,7 +16,7 @@ import * as p from "@clack/prompts";
 import color from "picocolors";
 import { execSync } from "node:child_process";
 import { readFileSync, cpSync, accessSync, readdirSync, rmSync, constants } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   detectRuntimes,
@@ -28,12 +29,54 @@ import {
 import { detectPlatform, getAdapter } from "./adapters/detect.js";
 import type { HookAdapter } from "./adapters/types.js";
 
+/* -------------------------------------------------------
+ * Hook dispatcher — `context-mode hook <platform> <event>`
+ * ------------------------------------------------------- */
+
+const HOOK_MAP: Record<string, Record<string, string>> = {
+  "claude-code": {
+    pretooluse: "hooks/pretooluse.mjs",
+    posttooluse: "hooks/posttooluse.mjs",
+    precompact: "hooks/precompact.mjs",
+    sessionstart: "hooks/sessionstart.mjs",
+    userpromptsubmit: "hooks/userpromptsubmit.mjs",
+  },
+  "gemini-cli": {
+    beforetool: "hooks/gemini-cli/beforetool.mjs",
+    aftertool: "hooks/gemini-cli/aftertool.mjs",
+    precompress: "hooks/gemini-cli/precompress.mjs",
+    sessionstart: "hooks/gemini-cli/sessionstart.mjs",
+  },
+  "vscode-copilot": {
+    pretooluse: "hooks/vscode-copilot/pretooluse.mjs",
+    posttooluse: "hooks/vscode-copilot/posttooluse.mjs",
+    precompact: "hooks/vscode-copilot/precompact.mjs",
+    sessionstart: "hooks/vscode-copilot/sessionstart.mjs",
+  },
+};
+
+async function hookDispatch(platform: string, event: string): Promise<void> {
+  const scriptPath = HOOK_MAP[platform]?.[event];
+  if (!scriptPath) {
+    console.error(`Unknown hook: ${platform}/${event}`);
+    process.exit(1);
+  }
+  const pluginRoot = getPluginRoot();
+  await import(join(pluginRoot, scriptPath));
+}
+
+/* -------------------------------------------------------
+ * Entry point
+ * ------------------------------------------------------- */
+
 const args = process.argv.slice(2);
 
 if (args[0] === "doctor") {
   doctor().then((code) => process.exit(code));
 } else if (args[0] === "upgrade") {
   upgrade();
+} else if (args[0] === "hook") {
+  hookDispatch(args[1], args[2]);
 } else {
   // Default: start MCP server
   import("./server.js");

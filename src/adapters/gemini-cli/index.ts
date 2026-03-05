@@ -226,9 +226,7 @@ export class GeminiCLIAdapter implements HookAdapter {
     return join(this.getSessionDir(), `${hash}-events.md`);
   }
 
-  generateHookConfig(pluginRoot: string): HookRegistration {
-    const hooksDir = join(pluginRoot, "hooks", "gemini-cli");
-
+  generateHookConfig(_pluginRoot: string): HookRegistration {
     return {
       [GEMINI_HOOK_NAMES.BEFORE_TOOL]: [
         {
@@ -236,7 +234,7 @@ export class GeminiCLIAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${GEMINI_HOOK_SCRIPTS[GEMINI_HOOK_NAMES.BEFORE_TOOL]}`,
+              command: `context-mode hook gemini-cli ${GEMINI_HOOK_NAMES.BEFORE_TOOL.toLowerCase()}`,
             },
           ],
         },
@@ -247,7 +245,7 @@ export class GeminiCLIAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${GEMINI_HOOK_SCRIPTS[GEMINI_HOOK_NAMES.AFTER_TOOL]}`,
+              command: `context-mode hook gemini-cli ${GEMINI_HOOK_NAMES.AFTER_TOOL.toLowerCase()}`,
             },
           ],
         },
@@ -258,7 +256,7 @@ export class GeminiCLIAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${GEMINI_HOOK_SCRIPTS[GEMINI_HOOK_NAMES.PRE_COMPRESS]}`,
+              command: `context-mode hook gemini-cli ${GEMINI_HOOK_NAMES.PRE_COMPRESS.toLowerCase()}`,
             },
           ],
         },
@@ -269,7 +267,7 @@ export class GeminiCLIAdapter implements HookAdapter {
           hooks: [
             {
               type: "command",
-              command: `node ${hooksDir}/${GEMINI_HOOK_SCRIPTS[GEMINI_HOOK_NAMES.SESSION_START]}`,
+              command: `context-mode hook gemini-cli ${GEMINI_HOOK_NAMES.SESSION_START.toLowerCase()}`,
             },
           ],
         },
@@ -307,7 +305,7 @@ export class GeminiCLIAdapter implements HookAdapter {
         check: "BeforeTool hook",
         status: "fail",
         message: "Could not read ~/.gemini/settings.json",
-        fix: "npx context-mode upgrade --platform gemini-cli",
+        fix: "context-mode upgrade",
       });
       return results;
     }
@@ -328,14 +326,14 @@ export class GeminiCLIAdapter implements HookAdapter {
         message: hasHook
           ? "BeforeTool hook configured"
           : "BeforeTool exists but does not point to context-mode",
-        fix: hasHook ? undefined : "npx context-mode upgrade --platform gemini-cli",
+        fix: hasHook ? undefined : "context-mode upgrade",
       });
     } else {
       results.push({
         check: "BeforeTool hook",
         status: "fail",
         message: "No BeforeTool hooks found",
-        fix: "npx context-mode upgrade --platform gemini-cli",
+        fix: "context-mode upgrade",
       });
     }
 
@@ -353,14 +351,14 @@ export class GeminiCLIAdapter implements HookAdapter {
         message: hasHook
           ? "SessionStart hook configured"
           : "SessionStart exists but does not point to context-mode",
-        fix: hasHook ? undefined : "npx context-mode upgrade --platform gemini-cli",
+        fix: hasHook ? undefined : "context-mode upgrade",
       });
     } else {
       results.push({
         check: "SessionStart hook",
         status: "fail",
         message: "No SessionStart hooks found",
-        fix: "npx context-mode upgrade --platform gemini-cli",
+        fix: "context-mode upgrade",
       });
     }
 
@@ -427,28 +425,20 @@ export class GeminiCLIAdapter implements HookAdapter {
 
   // ── Upgrade ────────────────────────────────────────────
 
-  configureAllHooks(pluginRoot: string): string[] {
+  configureAllHooks(_pluginRoot: string): string[] {
     const settings = this.readSettings() ?? {};
     const hooks = (settings.hooks ?? {}) as Record<string, unknown>;
     const changes: string[] = [];
-    const hooksDir = join(pluginRoot, "hooks", "gemini-cli");
 
     const hookConfigs: Array<{
       name: string;
-      script: string;
     }> = [
-      {
-        name: GEMINI_HOOK_NAMES.BEFORE_TOOL,
-        script: GEMINI_HOOK_SCRIPTS[GEMINI_HOOK_NAMES.BEFORE_TOOL],
-      },
-      {
-        name: GEMINI_HOOK_NAMES.SESSION_START,
-        script: GEMINI_HOOK_SCRIPTS[GEMINI_HOOK_NAMES.SESSION_START],
-      },
+      { name: GEMINI_HOOK_NAMES.BEFORE_TOOL },
+      { name: GEMINI_HOOK_NAMES.SESSION_START },
     ];
 
     for (const config of hookConfigs) {
-      const command = `node ${hooksDir}/${config.script}`;
+      const command = `context-mode hook gemini-cli ${config.name.toLowerCase()}`;
       const entry = {
         matcher: "",
         hooks: [{ type: "command", command }],

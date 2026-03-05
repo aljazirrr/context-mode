@@ -3,7 +3,7 @@
   "mcp": {
     "context-mode": {
       "type": "local",
-      "command": ["npx", "-y", "context-mode"]
+      "command": ["context-mode"]
     }
   },
   "plugin": ["context-mode"]

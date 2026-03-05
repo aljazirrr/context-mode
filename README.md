@@ -92,20 +92,25 @@ This gives you the 6 sandbox tools but without automatic routing. The model can 
 <details>
 <summary><strong>Gemini CLI</strong></summary>
 
-**Step 1 — Register the MCP server.** Add to `~/.gemini/settings.json`:
+**Step 1 — Install globally:**
+
+```bash
+npm install -g context-mode
+```
+
+**Step 2 — Register the MCP server.** Add to `~/.gemini/settings.json`:
 
 ```json
 {
   "mcpServers": {
     "context-mode": {
-      "command": "npx",
-      "args": ["-y", "context-mode"]
+      "command": "context-mode"
     }
   }
 }
 ```
 
-**Step 2 — Add hooks.** Without hooks, the model can ignore routing instructions and dump raw output into your context window. Hooks intercept every tool call and enforce sandbox routing programmatically — blocking `curl`, `wget`, and other data-heavy commands before they execute. Add to the same `~/.gemini/settings.json`:
+**Step 3 — Add hooks.** Without hooks, the model can ignore routing instructions and dump raw output into your context window. Hooks intercept every tool call and enforce sandbox routing programmatically — blocking `curl`, `wget`, and other data-heavy commands before they execute. Add to the same `~/.gemini/settings.json`:
 
 ```json
 {
@@ -113,26 +118,26 @@ This gives you the 6 sandbox tools but without automatic routing. The model can 
     "BeforeTool": [
       {
         "matcher": "",
-        "hooks": [{ "type": "command", "command": "node ./node_modules/context-mode/hooks/gemini-cli/beforetool.mjs" }]
+        "hooks": [{ "type": "command", "command": "context-mode hook gemini-cli beforetool" }]
       }
     ],
     "AfterTool": [
       {
         "matcher": "",
-        "hooks": [{ "type": "command", "command": "node ./node_modules/context-mode/hooks/gemini-cli/aftertool.mjs" }]
+        "hooks": [{ "type": "command", "command": "context-mode hook gemini-cli aftertool" }]
       }
     ],
     "SessionStart": [
       {
         "matcher": "",
-        "hooks": [{ "type": "command", "command": "node ./node_modules/context-mode/hooks/gemini-cli/sessionstart.mjs" }]
+        "hooks": [{ "type": "command", "command": "context-mode hook gemini-cli sessionstart" }]
       }
     ]
   }
 }
 ```
 
-**Step 3 — Restart Gemini CLI.** On first run, a `GEMINI.md` routing instructions file is auto-created in your project root. This works alongside hooks as a parallel enforcement layer — hooks block dangerous commands programmatically, while `GEMINI.md` teaches the model to prefer sandbox tools from the start.
+**Step 4 — Restart Gemini CLI.** On first run, a `GEMINI.md` routing instructions file is auto-created in your project root. This works alongside hooks as a parallel enforcement layer — hooks block dangerous commands programmatically, while `GEMINI.md` teaches the model to prefer sandbox tools from the start.
 
 > **Why hooks matter:** Without hooks, context-mode relies on `GEMINI.md` instructions alone (~60% compliance). The model sometimes follows them, but regularly runs raw `curl`, reads large files directly, or dumps unprocessed output into context — a single unrouted Playwright snapshot (56 KB) wipes out an entire session's savings. With hooks, every tool call is intercepted before execution — dangerous commands are blocked, and routing guidance is injected in real-time. This is the difference between ~60% and ~98% context savings.
 
@@ -143,38 +148,43 @@ Full hook config including PreCompress: [`configs/gemini-cli/settings.json`](con
 <details>
 <summary><strong>VS Code Copilot</strong></summary>
 
-**Step 1 — Register the MCP server.** Create `.vscode/mcp.json` in your project root:
+**Step 1 — Install globally:**
+
+```bash
+npm install -g context-mode
+```
+
+**Step 2 — Register the MCP server.** Create `.vscode/mcp.json` in your project root:
 
 ```json
 {
   "servers": {
     "context-mode": {
-      "command": "npx",
-      "args": ["-y", "context-mode"]
+      "command": "context-mode"
     }
   }
 }
 ```
 
-**Step 2 — Add hooks.** Without hooks, the model can bypass routing and dump raw output into your context. Hooks intercept every tool call and enforce sandbox routing programmatically. Create `.github/hooks/context-mode.json`:
+**Step 3 — Add hooks.** Without hooks, the model can bypass routing and dump raw output into your context. Hooks intercept every tool call and enforce sandbox routing programmatically. Create `.github/hooks/context-mode.json`:
 
 ```json
 {
   "hooks": {
     "PreToolUse": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/pretooluse.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot pretooluse" }
     ],
     "PostToolUse": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/posttooluse.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot posttooluse" }
     ],
     "SessionStart": [
-      { "type": "command", "command": "node ./node_modules/context-mode/hooks/vscode-copilot/sessionstart.mjs" }
+      { "type": "command", "command": "context-mode hook vscode-copilot sessionstart" }
     ]
   }
 }
 ```
 
-**Step 3 — Restart VS Code.** On first run, a `.github/copilot-instructions.md` routing instructions file is auto-created in your project. This works alongside hooks as a parallel enforcement layer — hooks intercept tool calls programmatically, while `copilot-instructions.md` guides the model's tool selection from session start.
+**Step 4 — Restart VS Code.** On first run, a `.github/copilot-instructions.md` routing instructions file is auto-created in your project. This works alongside hooks as a parallel enforcement layer — hooks intercept tool calls programmatically, while `copilot-instructions.md` guides the model's tool selection from session start.
 
 > **Why hooks matter:** Without hooks, `copilot-instructions.md` guides the model but can't block commands. A single unrouted Playwright snapshot (56 KB) or `gh issue list` (59 KB) wipes out minutes of context savings. With hooks, these calls are intercepted and redirected to the sandbox before they execute.
 
@@ -185,7 +195,13 @@ Full hook config including PreCompact: [`configs/vscode-copilot/hooks.json`](con
 <details>
 <summary><strong>OpenCode</strong></summary>
 
-**Step 1 — Register the MCP server and plugin.** OpenCode uses a TypeScript plugin paradigm instead of JSON hooks. Add both the MCP server and the plugin to `opencode.json` in your project root:
+**Step 1 — Install globally:**
+
+```bash
+npm install -g context-mode
+```
+
+**Step 2 — Register the MCP server and plugin.** OpenCode uses a TypeScript plugin paradigm instead of JSON hooks. Add both the MCP server and the plugin to `opencode.json` in your project root:
 
 ```json
 {
@@ -193,7 +209,7 @@ Full hook config including PreCompact: [`configs/vscode-copilot/hooks.json`](con
   "mcp": {
     "context-mode": {
       "type": "local",
-      "command": ["npx", "-y", "context-mode"]
+      "command": ["context-mode"]
     }
   },
   "plugin": ["context-mode"]
@@ -202,7 +218,7 @@ Full hook config including PreCompact: [`configs/vscode-copilot/hooks.json`](con
 
 The `mcp` entry gives you the 6 sandbox tools. The `plugin` entry enables hooks — OpenCode calls the plugin's TypeScript functions directly before and after each tool execution, blocking dangerous commands (like raw `curl`) and enforcing sandbox routing.
 
-**Step 2 — Restart OpenCode.** On first run, an `AGENTS.md` routing instructions file is auto-created in your project root. This works alongside the plugin as a parallel enforcement layer — the plugin intercepts tool calls at runtime, while `AGENTS.md` guides the model's tool preferences from session start.
+**Step 3 — Restart OpenCode.** On first run, an `AGENTS.md` routing instructions file is auto-created in your project root. This works alongside the plugin as a parallel enforcement layer — the plugin intercepts tool calls at runtime, while `AGENTS.md` guides the model's tool preferences from session start.
 
 > **Why the plugin matters:** Without the `plugin` entry, context-mode has no way to intercept tool calls. The model can run raw `curl`, read large files directly, or dump unprocessed output into context — ignoring `AGENTS.md` instructions. With the plugin, `tool.execute.before` fires on every tool call and blocks or redirects data-heavy commands before they execute. The `experimental.session.compacting` hook builds and injects resume snapshots when the conversation compacts, preserving session state.
 >
@@ -213,15 +229,20 @@ The `mcp` entry gives you the 6 sandbox tools. The `plugin` entry enables hooks 
 <details>
 <summary><strong>Codex CLI</strong></summary>
 
-**Step 1 — Register the MCP server.** Add to `~/.codex/config.toml`:
+**Step 1 — Install globally:**
+
+```bash
+npm install -g context-mode
+```
+
+**Step 2 — Register the MCP server.** Add to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.context-mode]
-command = "npx"
-args = ["-y", "context-mode"]
+command = "context-mode"
 ```
 
-**Step 2 — Restart Codex CLI.** On first run, an `AGENTS.md` routing instructions file is auto-created in your project root. Codex CLI reads `AGENTS.md` automatically and learns to prefer context-mode sandbox tools.
+**Step 3 — Restart Codex CLI.** On first run, an `AGENTS.md` routing instructions file is auto-created in your project root. Codex CLI reads `AGENTS.md` automatically and learns to prefer context-mode sandbox tools.
 
 **About hooks:** Codex CLI does not support hooks — PRs [#2904](https://github.com/openai/codex/pull/2904) and [#9796](https://github.com/openai/codex/pull/9796) were closed without merge. The `AGENTS.md` routing instructions file is the only enforcement method (~60% compliance). The model receives the instructions at session start and sometimes follows them, but there is no programmatic interception — it can run raw `curl`, read large files, or bypass sandbox tools at any time.
 
