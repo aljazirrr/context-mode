@@ -384,6 +384,20 @@ Detailed event data is also indexed into FTS5 for on-demand retrieval via `searc
 
 </details>
 
+### Utility Commands
+
+Three built-in commands work across **all platforms** — no Skills required:
+
+| Command | What it does | How it works |
+|---------|-------------|--------------|
+| `ctx stats` | Show context savings and session continuity report | Calls `stats` MCP tool directly |
+| `ctx doctor` | Diagnose installation (runtimes, hooks, FTS5) | Meta-tool returns shell command to execute |
+| `ctx upgrade` | Upgrade to latest version from GitHub | Meta-tool returns shell command to execute |
+
+On Claude Code, these also work as slash commands: `/ctx-stats`, `/ctx-doctor`, `/ctx-upgrade`.
+
+On other platforms (Gemini CLI, VS Code Copilot, OpenCode, Codex), just type the command name (e.g., "ctx stats") and the LLM will invoke the corresponding MCP tool.
+
 ## Benchmarks
 
 | Scenario | Raw | Context | Saved |

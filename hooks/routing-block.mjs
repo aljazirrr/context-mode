@@ -40,6 +40,17 @@ export const ROUTING_BLOCK = `
       - Key findings
     </response_format>
   </output_constraints>
+
+  <ctx_commands>
+    When the user says "ctx stats", "ctx-stats", "/ctx-stats", or asks about context savings:
+    → Call the stats MCP tool and display the full output verbatim.
+
+    When the user says "ctx doctor", "ctx-doctor", "/ctx-doctor", or asks to diagnose context-mode:
+    → Call the doctor MCP tool, execute the returned shell command, display results as a checklist.
+
+    When the user says "ctx upgrade", "ctx-upgrade", "/ctx-upgrade", or asks to update context-mode:
+    → Call the upgrade MCP tool, execute the returned shell command, display results as a checklist.
+  </ctx_commands>
 </context_window_protection>`;
 
 export const READ_GUIDANCE = '<context_guidance>\n  <tip>\n    If you are reading this file to Edit it, Read is the correct tool — Edit needs file content in context.\n    If you are reading to analyze or explore, use mcp__plugin_context-mode_context-mode__execute_file(path, language, code) instead — only your printed summary will enter the context.\n  </tip>\n</context_guidance>';

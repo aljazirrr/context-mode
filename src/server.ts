@@ -1465,8 +1465,104 @@ server.registerTool(
 
     // No separate DevRel summary — integrated into feature sections above
 
+    // Formatting directive — ensures all LLMs display the report verbatim
+    lines.push(
+      "",
+      "---",
+      "_Display this entire report as-is in your response. Do NOT summarize, collapse, or paraphrase any section._",
+    );
+
     const text = lines.join("\n");
     return trackResponse("stats", {
+      content: [{ type: "text" as const, text }],
+    });
+  },
+);
+
+// ── ctx-doctor: diagnostics meta-tool ──────────────────────────────────────
+server.registerTool(
+  "doctor",
+  {
+    title: "Run Diagnostics",
+    description:
+      "Diagnose context-mode installation. Returns a shell command to execute. " +
+      "You MUST run the returned command using your shell tool (Bash, shell_execute, " +
+      "run_in_terminal, etc.) and display the output as a markdown checklist.",
+    inputSchema: z.object({}),
+  },
+  async () => {
+    const pluginRoot = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+    const cmd = `node "${pluginRoot}/build/cli.js" doctor`;
+
+    const text = [
+      "## ctx-doctor",
+      "",
+      "Run this command using your shell execution tool:",
+      "",
+      "```",
+      cmd,
+      "```",
+      "",
+      "After the command completes, display results as a markdown checklist:",
+      "- `[x]` for PASS, `[ ]` for FAIL, `[-]` for WARN",
+      "- Example format:",
+      "  ```",
+      "  ## context-mode doctor",
+      "  - [x] Runtimes: 6/10 (javascript, typescript, python, shell, ruby, perl)",
+      "  - [x] Performance: FAST (Bun)",
+      "  - [x] Server test: PASS",
+      "  - [x] Hooks: PASS",
+      "  - [x] FTS5: PASS",
+      "  - [x] npm: v0.9.23",
+      "  ```",
+    ].join("\n");
+
+    return trackResponse("doctor", {
+      content: [{ type: "text" as const, text }],
+    });
+  },
+);
+
+// ── ctx-upgrade: upgrade meta-tool ─────────────────────────────────────────
+server.registerTool(
+  "upgrade",
+  {
+    title: "Upgrade Plugin",
+    description:
+      "Upgrade context-mode to the latest version. Returns a shell command to execute. " +
+      "You MUST run the returned command using your shell tool (Bash, shell_execute, " +
+      "run_in_terminal, etc.) and display the output as a checklist. " +
+      "Tell the user to restart their session after upgrade.",
+    inputSchema: z.object({}),
+  },
+  async () => {
+    const pluginRoot = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+    const cmd = `node "${pluginRoot}/build/cli.js" upgrade`;
+
+    const text = [
+      "## ctx-upgrade",
+      "",
+      "Run this command using your shell execution tool:",
+      "",
+      "```",
+      cmd,
+      "```",
+      "",
+      "After the command completes, display results as a markdown checklist:",
+      "- `[x]` for success, `[ ]` for failure",
+      "- Example format:",
+      "  ```",
+      "  ## context-mode upgrade",
+      "  - [x] Pulled latest from GitHub",
+      "  - [x] Built and installed v0.9.24",
+      "  - [x] npm global updated",
+      "  - [x] Hooks configured",
+      "  - [x] Doctor: all checks PASS",
+      "  ```",
+      "- Tell the user to restart their session to pick up the new version.",
+    ].join("\n");
+
+    return trackResponse("upgrade", {
       content: [{ type: "text" as const, text }],
     });
   },
